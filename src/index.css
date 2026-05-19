@@ -114,6 +114,7 @@ h1, h2, h3 {
   height: 100vh;
   width: 100vw;
   perspective: 1200px;
+  overflow: hidden; /* Prevent body scroll during 3D transitions */
 }
 .slide {
   position: absolute;
@@ -303,45 +304,61 @@ h1, h2, h3 {
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .slide {
-    width: 95vw;
-    height: 90vh;
-    padding: 1.5rem;
-    padding-bottom: 6rem; /* space for controls */
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    padding: 1rem;
+    padding-bottom: 5rem;
+    padding-top: 3rem;
     overflow-y: auto;
     overflow-x: hidden;
     justify-content: flex-start;
+    border-radius: 0;
+    border: none;
+    display: block;
+  }
+  
+  /* Reset inner flex containers on mobile so they don't constrain height */
+  .slide > div[style] {
+    height: auto !important;
+    flex: none !important;
   }
   
   .grid-2, .grid-3 {
     grid-template-columns: 1fr;
-    gap: 1rem;
+    gap: 1.5rem;
+    width: 100%;
   }
   
   .title {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
   
   .slide-title {
-    font-size: 2rem;
+    font-size: 1.5rem;
     margin-bottom: 1rem;
+    margin-top: 1rem;
   }
   
   .glass-card {
-    padding: 1.5rem;
+    padding: 1.2rem;
   }
   
   .body-text {
     font-size: 1rem;
+    line-height: 1.4;
   }
   
   .code-container {
-    font-size: 1rem;
-    min-height: 120px;
+    font-size: 0.85rem;
+    min-height: 80px;
   }
   
   .output-terminal {
-    font-size: 1rem;
+    font-size: 0.9rem;
     padding: 0.8rem;
+    min-height: 60px;
   }
 
   .controls {
@@ -358,7 +375,7 @@ h1, h2, h3 {
   .slide-counter {
     bottom: 1rem;
     left: 1rem;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
   }
 }
