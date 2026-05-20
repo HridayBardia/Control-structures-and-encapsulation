@@ -703,6 +703,29 @@ const App = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentSlide, isAuthenticated]);
 
+  // Touch swipe for mobile navigation
+  useEffect(() => {
+    let touchStartX = 0;
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (document.activeElement?.tagName === 'INPUT') return;
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 50) {
+        if (diff > 0) handleNext(); // swipe left → next
+        else handlePrev();          // swipe right → prev
+      }
+    };
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchend', handleTouchEnd, { passive: true });
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [currentSlide, isAuthenticated]);
+
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
     const { clientX, clientY } = e;
