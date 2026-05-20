@@ -272,9 +272,9 @@ const slidesData = [
           <h3 className="pink-text" style={{ marginBottom: '1rem' }}>if statement</h3>
           <InteractiveCodeBlock 
             keyword="if"
-            code={`int number = 10;
-if(number > 0){
-    System.out.println("Positive");
+            code={`int num = 10;
+if(num > 0){
+  System.out.print("Pos");
 }`}
             output="Positive"
           />
@@ -285,9 +285,9 @@ if(number > 0){
             keyword="else"
             code={`int age = 17;
 if(age >= 18){
-    System.out.println("Adult");
+  System.out.print("Adult");
 } else {
-    System.out.println("Minor");
+  System.out.print("Minor");
 }`}
             output="Minor"
           />
@@ -296,11 +296,11 @@ if(age >= 18){
           <h3 className="pink-text" style={{ marginBottom: '1rem' }}>switch statement</h3>
           <InteractiveCodeBlock 
             keyword="switch"
-            code={`int day = 3;
-switch(day){
-    case 1: System.out.println("Mon"); break;
-    case 3: System.out.println("Wed"); break;
-    default: System.out.println("Other");
+            code={`int d = 3;
+switch(d){
+  case 1: System.out.print("Mon"); break;
+  case 3: System.out.print("Wed"); break;
+  default: System.out.print("Other");
 }`}
             output="Wed"
           />

@@ -99,6 +99,7 @@ h1, h2, h3 {
   padding: 2rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.05);
   transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  min-width: 0;
 }
 .glass-card:hover {
   transform: translateZ(20px) scale(1.02);
@@ -163,7 +164,7 @@ h1, h2, h3 {
   border: 1px solid #333;
   border-radius: 12px;
   font-family: var(--font-code);
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 700;
   overflow: hidden;
   position: relative;
