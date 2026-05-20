@@ -190,7 +190,7 @@ const slidesData = [
         <h1 className="title" style={{ maxWidth: '1000px' }}>
           Control Statements & Encapsulation
         </h1>
-        <p className="cyan-text" style={{ fontSize: '1.5rem', marginTop: '1rem', letterSpacing: '4px' }}>JAVA SYSTEM OVERRIDE</p>
+        <p className="cyan-text subtitle-branding" style={{ fontSize: '1.5rem', marginTop: '1rem', letterSpacing: '4px' }}>JAVA SYSTEM OVERRIDE</p>
       </div>
     )
   },
@@ -574,10 +574,115 @@ System.out.println(s.getMarks());`}
   }
 ];
 
+// --- Speak Text Helper ---
+let activeUtterance: SpeechSynthesisUtterance | null = null;
+
+const speakText = (text: string, delay = 400) => {
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    
+    setTimeout(() => {
+      activeUtterance = new SpeechSynthesisUtterance(text);
+      const voices = window.speechSynthesis.getVoices();
+      
+      // Look for deep English male voice
+      const maleVoice = voices.find(voice => 
+        voice.lang.startsWith('en') && 
+        (voice.name.toLowerCase().includes('david') || 
+         voice.name.toLowerCase().includes('google us english') ||
+         voice.name.toLowerCase().includes('male'))
+      );
+      
+      if (maleVoice) {
+        activeUtterance.voice = maleVoice;
+      }
+      
+      activeUtterance.pitch = 0.8; // Deep voice
+      activeUtterance.rate = 0.95; // Clear speed
+      activeUtterance.volume = 1.0;
+      window.speechSynthesis.speak(activeUtterance);
+    }, delay);
+  }
+};
+
+// --- Typewriter Text Component ---
+const TypewriterText = ({ text, onComplete, speed = 25 }: { text: string; onComplete?: () => void; speed?: number }) => {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    setCount(0);
+  }, [text]);
+
+  useEffect(() => {
+    if (count < text.length) {
+      const timer = setTimeout(() => {
+        setCount((prev) => prev + 1);
+      }, speed);
+      return () => clearTimeout(timer);
+    } else if (onComplete) {
+      onComplete();
+    }
+  }, [count, text, onComplete, speed]);
+
+  return (
+    <p className="cyan-text" style={{ fontSize: '1.1rem', lineHeight: '1.7', marginBottom: '2rem', textAlign: 'left', minHeight: '100px', fontFamily: 'var(--font-code)' }}>
+      {text.substring(0, count)}
+      <span className="blinking-cursor">_</span>
+    </p>
+  );
+};
+
 // --- Main App Component ---
 const App = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isBooted, setIsBooted] = useState(false);
+  const [password, setPassword] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authError, setAuthError] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [initProgress, setInitProgress] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const voiceParagraph = "Welcome, owner. This system is highly calibrated to adapt to your neural frequencies. Please enter the correct password to access the core terminal.";
+
+  // Pre-load voices on component mount
+  useEffect(() => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+    }
+  }, []);
+
+  const handleInitialize = () => {
+    setIsBooted(true);
+    speakText(voiceParagraph, 500); // 500ms delay to let the screen update first
+  };
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password.toLowerCase() === 'jvm_overdrive') {
+      setIsInitializing(true);
+      speakText("Access granted. Initializing presentation engine.", 200);
+      
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 4;
+        if (progress >= 100) {
+          progress = 100;
+          clearInterval(interval);
+          setTimeout(() => {
+            setIsAuthenticated(true);
+            setIsInitializing(false);
+          }, 800);
+        }
+        setInitProgress(progress);
+      }, 120); // ~3 seconds of futuristic load
+    } else {
+      setAuthError(true);
+      speakText("Access denied. Invalid security credentials.", 200);
+      setPassword('');
+    }
+  };
 
   const handleNext = () => {
     if (currentSlide < slidesData.length - 1) setCurrentSlide(p => p + 1);
@@ -596,7 +701,7 @@ const App = () => {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentSlide]);
+  }, [currentSlide, isAuthenticated]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
@@ -606,6 +711,94 @@ const App = () => {
     containerRef.current.style.setProperty('--mouse-x', `${x}%`);
     containerRef.current.style.setProperty('--mouse-y', `${y}%`);
   };
+
+  if (!isBooted) {
+    return (
+      <div className="boot-container" style={{ background: '#050510' }}>
+        <div className="boot-box">
+          <motion.div 
+            animate={{ rotate: 360 }} 
+            transition={{ duration: 8, repeat: Infinity, ease: "linear" }} 
+            className="boot-circle"
+          >
+            <Zap size={40} color="var(--cyan-glow)" />
+          </motion.div>
+          <h2 className="cyan-text" style={{ fontSize: '1.8rem', letterSpacing: '4px', marginBottom: '1.5rem' }}>SYSTEM BOOT</h2>
+          <button className="run-btn" onClick={handleInitialize}>INITIALIZE NEURAL LINK</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isInitializing) {
+    return (
+      <div className="boot-container" style={{ background: '#050510' }}>
+        <div className="boot-box" style={{ maxWidth: '550px' }}>
+          <h2 className="cyan-text" style={{ fontSize: '1.6rem', letterSpacing: '3px', marginBottom: '1.5rem' }}>INITIALIZING PROTOCOL</h2>
+          
+          <div className="terminal-loader" style={{ 
+            width: '100%', 
+            fontFamily: 'var(--font-code)', 
+            fontSize: '0.85rem', 
+            color: 'var(--neon-green)', 
+            textAlign: 'left', 
+            background: '#020208', 
+            padding: '1.2rem', 
+            borderRadius: '8px', 
+            border: '1px solid #333', 
+            marginBottom: '1.5rem',
+            lineHeight: '1.5'
+          }}>
+            <div>{`[ RUN ] Bootstrapping presentation framework...`}</div>
+            {initProgress > 20 && <div style={{ color: '#00f0ff' }}>{`[ OK  ] JVM Overdrive compiler active.`}</div>}
+            {initProgress > 50 && <div style={{ color: '#39ff14' }}>{`[ OK  ] Neural link calibration complete.`}</div>}
+            {initProgress > 80 && <div style={{ color: '#ff2d78' }}>{`[ OK  ] Mounting: Control Structures & Encapsulation.`}</div>}
+            {initProgress === 100 && <div style={{ color: '#ffffff' }}>{`[ OK  ] Transitioning to main presentation layer.`}</div>}
+          </div>
+
+          <div className="loading-bar-container" style={{ width: '100%', height: '6px', background: '#111', borderRadius: '3px', overflow: 'hidden' }}>
+            <div className="loading-bar" style={{ width: `${initProgress}%`, height: '100%', background: 'var(--cyan-glow)', transition: 'width 0.1s linear', boxShadow: '0 0 10px var(--cyan-glow)' }} />
+          </div>
+          <div className="cyan-text" style={{ marginTop: '0.8rem', fontSize: '0.8rem', letterSpacing: '2px' }}>{initProgress}% CALIBRATED</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="boot-container" style={{ background: '#050510' }}>
+        <div className="boot-box" style={{ maxWidth: '550px' }}>
+          <h2 className="pink-text" style={{ fontSize: '1.6rem', letterSpacing: '3px', marginBottom: '1.5rem' }}>AUTHORIZATION REQUIRED</h2>
+          
+          <TypewriterText text={voiceParagraph} onComplete={() => setShowForm(true)} />
+          
+          <div style={{ 
+            width: '100%', 
+            opacity: showForm ? 1 : 0, 
+            transform: showForm ? 'translateY(0)' : 'translateY(10px)',
+            transition: 'opacity 0.5s ease, transform 0.5s ease',
+            pointerEvents: showForm ? 'all' : 'none'
+          }}>
+            <form onSubmit={handlePasswordSubmit} style={{ width: '100%' }}>
+              <input 
+                type="password" 
+                className={`unlock-input ${authError ? 'shake' : ''}`}
+                placeholder="Enter JVM Access Key"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setAuthError(false); }}
+                autoFocus
+                style={{ textTransform: 'none' }}
+              />
+              <button type="submit" className="run-btn" style={{ marginTop: '1.5rem', width: '100%', justifyContent: 'center' }}>
+                AUTHENTICATE
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const slide = slidesData[currentSlide];
 
